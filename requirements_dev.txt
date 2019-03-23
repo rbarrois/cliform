@@ -1,0 +1,7 @@
+-e .
+
+check-manifest
+flake8
+isort
+tox
+zest.releaser[recommended]
