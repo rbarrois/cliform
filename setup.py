@@ -45,7 +45,7 @@ setup(
     install_requires=[
         'Django>=2.0',
     ],
-    python_requires='>=3.5',
+    python_requires='>=3.6',
     setup_requires=[
         'setuptools>=0.8',
     ],
