@@ -3,6 +3,7 @@
 *.pyc
 *.pyo
 work/*
+.mypy_cache
 
 # Build-related files
 docs/_build/

@@ -3,5 +3,6 @@
 check-manifest
 flake8
 isort
+mypy
 tox
 zest.releaser[recommended]

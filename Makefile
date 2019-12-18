@@ -7,6 +7,7 @@ DOC_DIR = docs
 # Use current python binary instead of system default.
 COVERAGE = python $(shell which coverage)
 FLAKE8 = flake8
+MYPY = mypy
 
 # Computed
 PY_DIRS = $(SRC_DIR) $(TESTS_DIR)
@@ -41,11 +42,13 @@ release:
 testall:
 	tox
 
+mypy:
+	$(MYPY) $(SRC_DIR) $(TESTS_DIR)
 
 test:
 	python -W default manage_dev.py test
 
-.PHONY: test testall
+.PHONY: mypy test testall
 
 
 # Note: we run the linter in two runs, because our __init__.py files has specific warnings we want to exclude
