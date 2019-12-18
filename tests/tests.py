@@ -2,15 +2,9 @@
 # Copyright (c) The cliform project
 # This code is distributed under the two-clause BSD License.
 
-from django.test import TestCase
-
 import cliform
 
 from . import utils
-
-
-class SimpleFormTests(TestCase):
-    pass
 
 
 class MetaTests(utils.InteractionTestCase):
