@@ -1,10 +1,12 @@
 include CREDITS ChangeLog LICENSE README.rst
 include requirements*.txt
 
+graft demo
 graft src/cliform
 graft docs
 graft tests
 
+prune work
 global-exclude *.py[cod] __pycache__ .*.swp
 
-include Makefile tox.ini .flake8
+include manage_dev.py Makefile tox.ini .flake8
