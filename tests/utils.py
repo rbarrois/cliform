@@ -2,7 +2,6 @@
 # Copyright (c) The cliform project
 # This code is distributed under the two-clause BSD License.
 
-import re
 import typing as T
 import unittest
 
@@ -27,7 +26,7 @@ class SequenceRunner:
         reply = None
         for expected, answer in self._expected:
             value = loop.send(reply)
-            if not re.match(expected, value):
+            if expected != value:
                 raise ValueError("Prompt %r doesn't match expected %r" % (value, expected))
             if isinstance(value, cliform.Query):
                 reply = answer
