@@ -16,14 +16,14 @@ class SimpleFormTests(TestCase):
 class MetaTests(utils.InteractionTestCase):
     """Test the test helpers"""
     class NaivePrompter(cliform.Prompter):
-        def interact(self):
+        def interact(self) -> cliform.InteractLoop:
             yield cliform.Display("Hello")
             yield cliform.Display("World")
             reply = yield cliform.Query("Enter your name")
             assert reply == "John Doe"
             yield cliform.Display("Welcome, %s" % reply)
 
-    def test_interacter(self):
+    def test_interacter(self) -> None:
         self.assertSequence(
             self.NaivePrompter(),
             [
@@ -34,7 +34,7 @@ class MetaTests(utils.InteractionTestCase):
             ],
         )
 
-    def test_bad_output(self):
+    def test_bad_output(self) -> None:
         with self.assertRaises(ValueError):
             self.assertSequence(
                 self.NaivePrompter(),
@@ -46,7 +46,7 @@ class MetaTests(utils.InteractionTestCase):
                 ],
             )
 
-    def test_too_short(self):
+    def test_too_short(self) -> None:
         with self.assertRaises(AssertionError):
             self.assertSequence(
                 self.NaivePrompter(),
@@ -57,7 +57,7 @@ class MetaTests(utils.InteractionTestCase):
                 ],
             )
 
-    def test_too_long(self):
+    def test_too_long(self) -> None:
         with self.assertRaises(StopIteration):
             self.assertSequence(
                 self.NaivePrompter(),
@@ -70,7 +70,7 @@ class MetaTests(utils.InteractionTestCase):
                 ],
             )
 
-    def test_no_prompt(self):
+    def test_no_prompt(self) -> None:
         with self.assertRaises(AssertionError):
             self.assertSequence(
                 self.NaivePrompter(),

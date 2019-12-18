@@ -3,27 +3,26 @@
 # This code is distributed under the two-clause BSD License.
 
 import re
-import typing
+import typing as T
 import unittest
 
 import cliform
 
 
-
-class Expect(typing.NamedTuple):
+class Expect(T.NamedTuple):
     """An expected prompt, and the reply to send."""
-    prompt: cliform.Prompt
-    reply: typing.Optional[cliform.Input]
+    prompt: T.Text
+    reply: T.Optional[T.Text]
 
 
 class SequenceRunner:
-    _expected: typing.List[Expect]
+    _expected: T.Iterable[Expect]
 
-    def __init__(self, expected: typing.List[Expect]):
+    def __init__(self, expected: T.Iterable[Expect]):
         # self._expected: the list of expected prompts, and the replies
         self._expected = expected
 
-    def interact(self, prompter: cliform.Prompter):
+    def interact(self, prompter: cliform.Prompter) -> None:
         loop = prompter.interact()
         reply = None
         for expected, answer in self._expected:
@@ -39,6 +38,6 @@ class SequenceRunner:
 
 
 class InteractionTestCase(unittest.TestCase):
-    def assertSequence(self, prompter, expected):
+    def assertSequence(self, prompter: cliform.Prompter, expected: T.Sequence[Expect]) -> None:
         runner = SequenceRunner(expected)
         runner.interact(prompter)

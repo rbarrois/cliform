@@ -5,32 +5,36 @@
 __version__ = '0.1.0'
 __author__ = 'Raphaël Barrois <raphael.barrois+cliform@polytechnique.org>'
 
-import typing
+import typing as T
 
-class Display(typing.Text):
+
+class Display(T.Text):
     pass
 
-class Query(typing.Text):
+
+class Query(T.Text):
     pass
 
-Prompt = typing.Union[Display, Query]
-Input = typing.NewType('Input', typing.Text)
+
+Prompt = T.Union[Display, Query]
+Input = T.NewType('Input', T.Text)
+InteractLoop = T.Generator[Prompt, T.Optional[Input], None]
 
 
 class Prompter:
-    def interact(self) -> typing.Generator[Prompt, typing.Optional[Input], None]:
+    def interact(self) -> InteractLoop:
         raise NotImplementedError()
 
 
 class Interacter:
-    def __init__(self, stdin, stdout):
+    def __init__(self, stdin: T.TextIO, stdout: T.TextIO):
         self.stdin = stdin
         self.stdout = stdout
 
-    def _display(self, prompt: Prompt):
+    def _display(self, prompt: Prompt) -> None:
         self.stdout.write(prompt + '\n')
 
-    def run(self, prompter: Prompter):
+    def run(self, prompter: Prompter) -> None:
         loop = prompter.interact()
         reply = None
         while True:

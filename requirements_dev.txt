@@ -1,6 +1,7 @@
 -e .
 
 check-manifest
+django-stubs
 flake8
 isort
 mypy
