@@ -56,7 +56,7 @@ class MetaTests(utils.InteractionTestCase):
             )
 
     def test_too_long(self) -> None:
-        with self.assertRaises(StopIteration):
+        with self.assertRaises((StopIteration, RuntimeError)):
             self.assertSequence(
                 self.NaivePrompter(),
                 [
