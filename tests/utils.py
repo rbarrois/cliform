@@ -2,6 +2,7 @@
 # Copyright (c) The cliform project
 # This code is distributed under the two-clause BSD License.
 
+import re
 import typing as T
 import unittest
 
@@ -13,13 +14,26 @@ class ExpectMsg(T.NamedTuple):
     """An expected text display."""
     message: T.Text
 
+    def check(self, value) -> None:
+        if value != self.message:
+            raise ValueError("Unexpected message %r; expecting %r" % (value, self.message))
+
+
+class ExpectRe(T.NamedTuple):
+    """Expect a message, matching with a regex."""
+    regex: T.Text
+
+    def check(self, value) -> None:
+        if not re.match(self.regex, value):
+            raise ValueError("Unexpected message %r; doesn't match %r" % (value, self.regex))
+
 
 class ExpectQuery(T.NamedTuple):
     """Expect a request; and the reply to send."""
     reply: T.Text
 
 
-Expect = T.Union[ExpectMsg, ExpectQuery]
+Expect = T.Union[ExpectMsg, ExpectRe, ExpectQuery]
 
 
 class SequenceRunner:
@@ -41,8 +55,8 @@ class SequenceRunner:
             else:
                 if isinstance(expected, ExpectQuery):
                     raise ValueError("Unexpected message %r; expecting query" % value)
-                elif value != expected.message:
-                    raise ValueError("Unexpected message %r; expecting %r" % (value, expected.message))
+                else:
+                    expected.check(value)
 
                 reply = None
         assert reply is None
