@@ -9,10 +9,17 @@ import cliform
 import cliform.interact
 
 
-class Expect(T.NamedTuple):
-    """An expected prompt, and the reply to send."""
-    prompt: T.Text
-    reply: T.Optional[T.Text]
+class ExpectMsg(T.NamedTuple):
+    """An expected text display."""
+    message: T.Text
+
+
+class ExpectQuery(T.NamedTuple):
+    """Expect a request; and the reply to send."""
+    reply: T.Text
+
+
+Expect = T.Union[ExpectMsg, ExpectQuery]
 
 
 class SequenceRunner:
@@ -23,15 +30,20 @@ class SequenceRunner:
         self._expected = expected
 
     def interact(self, prompter: cliform.Prompter) -> None:
-        loop = prompter.interact()
+        loop = prompter.loop()
         reply = None
-        for expected, answer in self._expected:
+        for expected in self._expected:
             value = loop.send(reply)
-            if expected != value:
-                raise ValueError("Prompt %r doesn't match expected %r" % (value, expected))
-            if isinstance(value, cliform.interact.Prompt):
-                reply = answer
+            if isinstance(value, cliform.interact.Query):
+                if not isinstance(expected, ExpectQuery):
+                    raise ValueError("Unexpected query; expecting display %r" % expected)
+                reply = expected.reply
             else:
+                if isinstance(expected, ExpectQuery):
+                    raise ValueError("Unexpected message %r; expecting query" % value)
+                elif value != expected.message:
+                    raise ValueError("Unexpected message %r; expecting %r" % (value, expected.message))
+
                 reply = None
         assert reply is None
         loop.close()

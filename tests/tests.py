@@ -12,20 +12,21 @@ class MetaTests(utils.InteractionTestCase):
     """Test the test helpers"""
     class NaivePrompter(cliform.Prompter):
         def interact(self) -> cliform.interact.InteractLoop:
-            yield cliform.interact.Display("Hello")
-            yield cliform.interact.Display("World")
-            reply = yield cliform.interact.Prompt("Enter your name")
+            yield cliform.interact.Info("Hello")
+            yield cliform.interact.Info("World")
+            reply = yield cliform.interact.TextInput("Enter your name")
             assert reply == "John Doe"
-            yield cliform.interact.Display("Welcome, %s" % reply)
+            yield cliform.interact.Info("Welcome, %s" % reply)
 
     def test_interacter(self) -> None:
         self.assertSequence(
             self.NaivePrompter(),
             [
-                utils.Expect("Hello", None),
-                utils.Expect("World", None),
-                utils.Expect("Enter your name", "John Doe"),
-                utils.Expect("Welcome, John Doe", None),
+                utils.ExpectMsg("Hello"),
+                utils.ExpectMsg("World"),
+                utils.ExpectMsg(">>> Enter your name?"),
+                utils.ExpectQuery(reply="John Doe"),
+                utils.ExpectMsg("Welcome, John Doe"),
             ],
         )
 
@@ -34,10 +35,11 @@ class MetaTests(utils.InteractionTestCase):
             self.assertSequence(
                 self.NaivePrompter(),
                 [
-                    utils.Expect("Hello", None),
-                    utils.Expect("Earth", None),
-                    utils.Expect("Enter your name", "John Doe"),
-                    utils.Expect("Welcome, John Doe", None),
+                    utils.ExpectMsg("Hello"),
+                    utils.ExpectMsg("Earth"),
+                    utils.ExpectMsg(">>> Enter your name?"),
+                    utils.ExpectQuery(reply="John Doe"),
+                    utils.ExpectMsg("Welcome, John Doe"),
                 ],
             )
 
@@ -46,9 +48,10 @@ class MetaTests(utils.InteractionTestCase):
             self.assertSequence(
                 self.NaivePrompter(),
                 [
-                    utils.Expect("Hello", None),
-                    utils.Expect("World", None),
-                    utils.Expect("Enter your name", "John Doe"),
+                    utils.ExpectMsg("Hello"),
+                    utils.ExpectMsg("World"),
+                    utils.ExpectMsg(">>> Enter your name?"),
+                    utils.ExpectQuery(reply="John Doe"),
                 ],
             )
 
@@ -57,22 +60,24 @@ class MetaTests(utils.InteractionTestCase):
             self.assertSequence(
                 self.NaivePrompter(),
                 [
-                    utils.Expect("Hello", None),
-                    utils.Expect("World", None),
-                    utils.Expect("Enter your name", "John Doe"),
-                    utils.Expect("Welcome, John Doe", None),
-                    utils.Expect("Good bye!", None),
+                    utils.ExpectMsg("Hello"),
+                    utils.ExpectMsg("World"),
+                    utils.ExpectMsg(">>> Enter your name?"),
+                    utils.ExpectQuery(reply="John Doe"),
+                    utils.ExpectMsg("Welcome, John Doe"),
+                    utils.ExpectMsg("Good bye!"),
                 ],
             )
 
     def test_no_prompt(self) -> None:
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(ValueError):
             self.assertSequence(
                 self.NaivePrompter(),
                 [
-                    utils.Expect("Hello", None),
-                    utils.Expect("World", "John Doe"),
-                    utils.Expect("Enter your name", None),
-                    utils.Expect("Welcome, John Doe", None),
+                    utils.ExpectMsg("Hello"),
+                    utils.ExpectMsg("World"),
+                    utils.ExpectQuery(reply="John Doe"),
+                    utils.ExpectMsg(">>> Enter your name?"),
+                    utils.ExpectMsg("Welcome, John Doe"),
                 ],
             )

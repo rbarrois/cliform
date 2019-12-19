@@ -29,16 +29,19 @@ class SimpleFormTests(utils.InteractionTestCase):
         self.assertSequence(
             FormPrompter(),
             [
-                utils.Expect(">>> Name?", "John Doe"),
-                utils.Expect(">>> Email?", "john.doe@example.com"),
-                utils.Expect("", None),
-                utils.Expect("=== Summary ===", None),
-                utils.Expect("Name:   John Doe", None),
-                utils.Expect("Email:  john.doe@example.com", None),
-                utils.Expect(">>> Confirm? ([Y]es/[N]o)", ''),
-                utils.Expect("", None),
-                utils.Expect("`ExampleForm` has been submitted:", None),
-                utils.Expect("  {'name': 'John Doe', 'email': 'john.doe@example.com'}", None)
+                utils.ExpectMsg(">>> Name?"),
+                utils.ExpectQuery(reply="John Doe"),
+                utils.ExpectMsg(">>> Email?"),
+                utils.ExpectQuery(reply="john.doe@example.com"),
+                utils.ExpectMsg(""),
+                utils.ExpectMsg("=== Summary ==="),
+                utils.ExpectMsg("Name:   John Doe"),
+                utils.ExpectMsg("Email:  john.doe@example.com"),
+                utils.ExpectMsg(">>> Confirm? ([Y]es/[N]o)"),
+                utils.ExpectQuery(reply=''),
+                utils.ExpectMsg(""),
+                utils.ExpectMsg("`ExampleForm` has been submitted:"),
+                utils.ExpectMsg("  {'name': 'John Doe', 'email': 'john.doe@example.com'}")
             ],
         )
 
@@ -46,17 +49,21 @@ class SimpleFormTests(utils.InteractionTestCase):
         self.assertSequence(
             FormPrompter(),
             [
-                utils.Expect(">>> Name?", "John Doe"),
-                utils.Expect(">>> Email?", "john"),
-                utils.Expect("!! Enter a valid email address.", None),
-                utils.Expect(">>> Email?", "john.doe@example.com"),
-                utils.Expect("", None),
-                utils.Expect("=== Summary ===", None),
-                utils.Expect("Name:   John Doe", None),
-                utils.Expect("Email:  john.doe@example.com", None),
-                utils.Expect(">>> Confirm? ([Y]es/[N]o)", ''),
-                utils.Expect("", None),
-                utils.Expect("`ExampleForm` has been submitted:", None),
-                utils.Expect("  {'name': 'John Doe', 'email': 'john.doe@example.com'}", None)
+                utils.ExpectMsg(">>> Name?"),
+                utils.ExpectQuery(reply="John Doe"),
+                utils.ExpectMsg(">>> Email?"),
+                utils.ExpectQuery(reply="john"),
+                utils.ExpectMsg("!! Enter a valid email address."),
+                utils.ExpectMsg(">>> Email?"),
+                utils.ExpectQuery(reply="john.doe@example.com"),
+                utils.ExpectMsg(""),
+                utils.ExpectMsg("=== Summary ==="),
+                utils.ExpectMsg("Name:   John Doe"),
+                utils.ExpectMsg("Email:  john.doe@example.com"),
+                utils.ExpectMsg(">>> Confirm? ([Y]es/[N]o)"),
+                utils.ExpectQuery(reply=''),
+                utils.ExpectMsg(""),
+                utils.ExpectMsg("`ExampleForm` has been submitted:"),
+                utils.ExpectMsg("  {'name': 'John Doe', 'email': 'john.doe@example.com'}")
             ],
         )
