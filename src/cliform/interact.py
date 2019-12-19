@@ -125,6 +125,10 @@ InteractLoop = T.Generator[Output, T.Optional[Input], None]
 
 
 class Prompter:
+    ERROR_PREFIX = '!!'
+    INPUT_PREFIX = '>>>'
+    SUMMARY_HEADER = '=== Summary ==='
+
     def interact(self) -> InteractLoop:
         raise NotImplementedError()
 
@@ -133,11 +137,11 @@ class Prompter:
             yield output.message
         elif isinstance(output, Error):
             if output.field:
-                yield "!! {0}: {1}".format(output.field, output.message)
+                yield "{} {}: {}".format(self.ERROR_PREFIX, output.field, output.message)
             else:
-                yield "!! {0}".format(output.message)
+                yield "{} {}".format(self.ERROR_PREFIX, output.message)
         elif isinstance(output, Summary):
-            yield "=== Summary ==="
+            yield self.SUMMARY_HEADER
             width = (max(len(name) for name in output.fields) // 4 + 1) * 4
             line_format = "{0:<%d}{1}" % width
             for field, value in output.fields.items():
@@ -145,10 +149,11 @@ class Prompter:
 
         # Inputs
         elif isinstance(output, TextInput):
-            yield ">>> {0}?".format(output.title)
+            yield "{} {}?".format(self.INPUT_PREFIX, output.title)
         else:
             assert isinstance(output, ChoiceInput)
-            yield ">>> {0}? ({1})".format(
+            yield "{} {}? ({})".format(
+                self.INPUT_PREFIX,
                 output.title,
                 '/'.join(
                     '%s[%s]%s' % (prefix, letter.upper(), suffix)
