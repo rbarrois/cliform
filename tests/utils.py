@@ -6,6 +6,7 @@ import typing as T
 import unittest
 
 import cliform
+import cliform.interact
 
 
 class Expect(T.NamedTuple):
@@ -28,7 +29,7 @@ class SequenceRunner:
             value = loop.send(reply)
             if expected != value:
                 raise ValueError("Prompt %r doesn't match expected %r" % (value, expected))
-            if isinstance(value, cliform.Query):
+            if isinstance(value, cliform.interact.Query):
                 reply = answer
             else:
                 reply = None

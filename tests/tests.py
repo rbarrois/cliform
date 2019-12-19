@@ -3,6 +3,7 @@
 # This code is distributed under the two-clause BSD License.
 
 import cliform
+import cliform.interact
 
 from . import utils
 
@@ -10,12 +11,12 @@ from . import utils
 class MetaTests(utils.InteractionTestCase):
     """Test the test helpers"""
     class NaivePrompter(cliform.Prompter):
-        def interact(self) -> cliform.InteractLoop:
-            yield cliform.Display("Hello")
-            yield cliform.Display("World")
-            reply = yield cliform.Query("Enter your name")
+        def interact(self) -> cliform.interact.InteractLoop:
+            yield cliform.interact.Display("Hello")
+            yield cliform.interact.Display("World")
+            reply = yield cliform.interact.Query("Enter your name")
             assert reply == "John Doe"
-            yield cliform.Display("Welcome, %s" % reply)
+            yield cliform.interact.Display("Welcome, %s" % reply)
 
     def test_interacter(self) -> None:
         self.assertSequence(
