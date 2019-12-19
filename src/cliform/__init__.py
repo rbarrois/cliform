@@ -7,12 +7,12 @@ __author__ = 'Raphaël Barrois <raphael.barrois+cliform@polytechnique.org>'
 
 
 from .interact import (
-    Interacter,
+    StdioInteracter,
     Prompter,
 )
 
 
 __all__ = (
-    'Interacter',
+    'StdioInteracter',
     'Prompter',
 )

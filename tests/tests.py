@@ -14,7 +14,7 @@ class MetaTests(utils.InteractionTestCase):
         def interact(self) -> cliform.interact.InteractLoop:
             yield cliform.interact.Display("Hello")
             yield cliform.interact.Display("World")
-            reply = yield cliform.interact.Query("Enter your name")
+            reply = yield cliform.interact.Prompt("Enter your name")
             assert reply == "John Doe"
             yield cliform.interact.Display("Welcome, %s" % reply)
 

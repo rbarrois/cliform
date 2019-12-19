@@ -7,16 +7,24 @@ import typing as T
 
 
 class Display(T.Text):
+    """Display some text; no reply expected."""
     pass
 
 
-class Query(T.Text):
+class Prompt(T.Text):
+    """Display some text, expecting a reply."""
     pass
 
 
-Prompt = T.Union[Display, Query]
-Input = T.NewType('Input', T.Text)
-InteractLoop = T.Generator[Prompt, T.Optional[Input], None]
+class Input(T.Text):
+    """Raw user-provided text."""
+
+
+Output = T.Union[Display, Prompt]
+
+
+PromptLoop = T.Generator[Output, Input, Input]
+InteractLoop = T.Generator[Output, T.Optional[Input], None]
 
 
 class Prompter:
@@ -24,12 +32,13 @@ class Prompter:
         raise NotImplementedError()
 
 
-class Interacter:
+class StdioInteracter:
+    """Interact with stdin/stdout."""
     def __init__(self, stdin: T.TextIO, stdout: T.TextIO):
         self.stdin = stdin
         self.stdout = stdout
 
-    def _display(self, prompt: Prompt) -> None:
+    def _display(self, prompt: Output) -> None:
         self.stdout.write(prompt + '\n')
 
     def run(self, prompter: Prompter) -> None:
@@ -38,5 +47,5 @@ class Interacter:
         while True:
             value = loop.send(reply)
             self._display(value)
-            if isinstance(value, Query):
+            if isinstance(value, Prompt):
                 reply = Input(input())

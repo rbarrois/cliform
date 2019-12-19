@@ -29,7 +29,7 @@ class SequenceRunner:
             value = loop.send(reply)
             if expected != value:
                 raise ValueError("Prompt %r doesn't match expected %r" % (value, expected))
-            if isinstance(value, cliform.interact.Query):
+            if isinstance(value, cliform.interact.Prompt):
                 reply = answer
             else:
                 reply = None

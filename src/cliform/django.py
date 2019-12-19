@@ -22,9 +22,9 @@ def walk_errors(error: forms.ValidationError) -> T.Iterable[T.Text]:
 class FormPrompter(interact.Prompter):
     form_class: T.Type[forms.Form]
 
-    def _get_field(self, field: forms.Field) -> T.Generator[interact.Prompt, interact.Input, interact.Input]:
+    def _get_field(self, field: forms.Field) -> interact.PromptLoop:
         while True:
-            value = yield interact.Query(">>> %s?" % field.label)
+            value = yield interact.Prompt(">>> %s?" % field.label)
             try:
                 field.clean(value)
             except forms.ValidationError as e:
@@ -49,7 +49,7 @@ class FormPrompter(interact.Prompter):
         for field_name, field in form.fields.items():
             yield interact.Display(line_format.format(field.label + ':', values[field_name]))
 
-        reply = yield interact.Query(">>> Confirm? ([Y]es/[N]o)")
+        reply = yield interact.Prompt(">>> Confirm? ([Y]es/[N]o)")
 
         if reply is not None and reply.lower() in ['', 'y']:
             result = form.save()
