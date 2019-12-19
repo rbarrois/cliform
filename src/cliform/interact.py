@@ -5,6 +5,7 @@
 
 import collections
 import typing as T
+from dataclasses import dataclass
 
 # General interaction
 # ===================
@@ -31,92 +32,137 @@ BaseLoop = T.Generator[T.Union[Display, Query], T.Optional[Input], None]
 # =====================
 
 
-class Info(T.NamedTuple):
+@dataclass
+class Info:
     """Information to show to the user"""
     message: T.Text
     want_input: bool = False
 
 
-class Error(T.NamedTuple):
+@dataclass
+class Error:
     """An error message."""
     message: T.Text
     field: T.Optional[T.Text] = None
     want_input: bool = False
 
 
-class Summary(T.NamedTuple):
+@dataclass
+class Summary:
     """A summary of the forms to be submitted."""
     fields: T.Mapping[T.Text, T.Any]
     want_input: bool = False
 
 
-class TextInput(T.NamedTuple):
+@dataclass
+class Prompt:
+    title: T.Text
+
+    def convert(self, reply: T.Text) -> T.Any:
+        raise NotImplementedError()
+
+
+@dataclass
+class TextInput(Prompt):
     title: T.Text
     want_input: bool = True
 
+    def convert(self, reply: T.Text):
+        return reply
 
-class Option(T.NamedTuple):
+
+@dataclass
+class OptionKey:
+    value: T.Any
+
+
+OptionShortcut = T.NewType('OptionShortcut', T.Text)
+
+
+@dataclass
+class Option:
+    key: OptionKey
+    shortcut: OptionShortcut
     prefix: T.Text
-    letter: T.Text
     suffix: T.Text
 
 
-class ChoiceInput:
-    title: T.Text
-    options: T.Mapping[T.Text, T.Text]
-    split_options: T.Mapping[T.Text, Option]
+@dataclass
+class ChoiceInput(Prompt):
+    choices: T.Mapping[OptionShortcut, Option]
     default_first: bool = False
-    want_input: bool = True
-
-    def __init__(self, title, options, default_first=False) -> None:
-        self.title = title
-        self.options = options
-        self.default_first = default_first
-        self.split_options = self.parse_options(self.options)
-
-    def parse_options(self, options) -> T.Mapping[T.Text, Option]:
-        split_options = collections.OrderedDict()
-        for letter, text in options.items():
-            letter = letter.lower()
-            position = text.lower().index(letter)
-            split_options[letter] = Option(
-                prefix=text[:position],
-                letter=text[position],
-                suffix=text[position + 1:],
-            )
-        return split_options
 
     @classmethod
-    def generate_options(cls, values: T.Iterable[T.Text]) -> T.Mapping[T.Text, T.Text]:
-        options: T.Dict[T.Text, T.Text] = collections.OrderedDict()
+    def from_shortcuts(
+            cls, title: T.Text,
+            options: T.Iterable[T.Tuple[OptionKey, OptionShortcut, T.Text]], default_first=False):
+        choices: T.Dict[OptionShortcut, Option] = collections.OrderedDict()
+        for key, shortcut, text in options:
+            try:
+                position = text.lower().index(shortcut.lower())
+            except ValueError:
+                # Shortcut absent from string
+                position = 0
+            choices[shortcut] = Option(
+                key=key,
+                shortcut=shortcut,
+                prefix=text[:position],
+                suffix=text[position + 1:],
+            )
+        return cls(
+            title=title,
+            choices=choices,
+            default_first=default_first,
+        )
+
+    @classmethod
+    def from_texts(cls, title: T.Text, options: T.Iterable[T.Tuple[OptionKey, T.Text]], default_first=False):
+
+        choices: T.List[T.Tuple[OptionKey, OptionShortcut, T.Text]] = []
+        shortcuts: T.Set[T.Text] = set()
         orphans = []
-        for option in values:
+        for key, option in options:
             for char in option.lower():
                 if not char.isalpha():
                     continue
-                if char not in options:
-                    options[char] = option
+                if char not in shortcuts:
+                    choices.append((key, OptionShortcut(char), option))
+                    shortcuts.add(char)
                     break
             else:
                 orphans.append(option)
         for rank, orphan in enumerate(orphans):
-            options[str(rank)] = orphan
-        return options
+            choices.append((key, OptionShortcut(str(rank)), orphan))
+        return cls.from_shortcuts(
+            title=title,
+            options=choices,
+            default_first=default_first,
+        )
+
+    def convert(self, reply: T.Text) -> T.Text:
+        shortcut = OptionShortcut(reply)
+        if shortcut in self.choices:
+            return self.choices[shortcut].key.value
+        elif self.default_first and not reply:
+            return list(self.choices.values())[0].key.value
+        else:
+            return reply
 
 
-class BoolInput(ChoiceInput):
-    def __init__(self, title: T.Text, default: T.Optional[bool]):
-        options = [
-            ('y', 'Yes'),
-            ('n', 'No'),
-        ]
-        default_first = default is not None
-        if default is False:
-            options.reverse()
-        super().__init__(title, options=collections.OrderedDict(options), default_first=default_first)
+def BoolInput(title: T.Text, default: T.Optional[bool]) -> ChoiceInput:
+    options = [
+        (OptionKey(True), "Yes"),
+        (OptionKey(False), "No"),
+    ]
+    if default is False:
+        options.reverse()
+    return ChoiceInput.from_texts(
+        title=title,
+        options=options,
+        default_first=default is not None,
+    )
 
 
-Prompt = T.Union[TextInput, ChoiceInput, BoolInput]
 Output = T.Union[Info, Error, Summary, Prompt]
 
 
@@ -156,8 +202,8 @@ class Prompter:
                 self.INPUT_PREFIX,
                 output.title,
                 '/'.join(
-                    '%s[%s]%s' % (prefix, letter.upper(), suffix)
-                    for prefix, letter, suffix in output.split_options.values()
+                    '%s[%s]%s' % (o.prefix, o.shortcut.upper(), o.suffix)
+                    for o in output.choices.values()
                 ),
             )
 
@@ -170,8 +216,10 @@ class Prompter:
                 reply = yield Display(line)
                 assert reply is None
 
-            if value.want_input:
+            if isinstance(value, Prompt):
                 reply = yield Query()
+                assert reply is not None
+                reply = value.convert(reply)
 
 
 class BaseInteracter:
