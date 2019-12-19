@@ -6,6 +6,7 @@ work/*
 .mypy_cache
 
 # Build-related files
+.build.*
 docs/_build/
 .coverage
 .tox
