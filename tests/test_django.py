@@ -62,6 +62,25 @@ class SimpleFormTests(utils.InteractionTestCase):
             'name': "John Doe",
         }, self.prompter.data)
 
+    def test_no_save(self) -> None:
+        self.assertSequence(
+            self.prompter,
+            [
+                utils.ExpectMsg(">>> Name?"),
+                utils.ExpectQuery(reply="John Doe"),
+                utils.ExpectMsg(">>> Email?"),
+                utils.ExpectQuery(reply="john.doe@example.com"),
+                utils.ExpectMsg(""),
+                utils.ExpectMsg("=== Summary ==="),
+                utils.ExpectMsg("Name:   John Doe"),
+                utils.ExpectMsg("Email:  john.doe@example.com"),
+                utils.ExpectMsg(">>> Confirm? ([Y]es/[N]o)"),
+                utils.ExpectQuery(reply='n'),
+                utils.ExpectMsg("!! Aborting"),
+            ],
+        )
+        self.assertIsNone(self.prompter.data)
+
     def test_bad_input(self) -> None:
         self.assertSequence(
             self.prompter,
