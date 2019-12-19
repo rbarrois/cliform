@@ -2,6 +2,7 @@ PACKAGE := cliform
 SRC_DIR = src/$(PACKAGE)
 TESTS_MODULE = tests
 TESTS_DIR = tests
+DEMO_DIR = demo
 DOC_DIR = docs
 
 # Use current python binary instead of system default.
@@ -10,7 +11,7 @@ FLAKE8 = flake8
 MYPY = mypy
 
 # Computed
-PY_DIRS = $(SRC_DIR) $(TESTS_DIR)
+PY_DIRS = $(SRC_DIR) $(TESTS_DIR) $(DEMO_DIR)
 
 all: default
 
@@ -43,7 +44,7 @@ testall:
 	tox
 
 mypy:
-	$(MYPY) $(SRC_DIR) $(TESTS_DIR)
+	$(MYPY) $(SRC_DIR) $(TESTS_DIR) $(DEMO_DIR)
 
 test:
 	python -W default manage_dev.py test
@@ -54,10 +55,10 @@ test:
 lint: check-manifest isort flake8
 
 flake8:
-	flake8 --config .flake8 $(SRC_DIR) $(TESTS_DIR)
+	flake8 --config .flake8 $(SRC_DIR) $(TESTS_DIR) $(DEMO_DIR) setup.py
 
 isort:
-	isort $(SRC_DIR) $(TESTS_DIR) --recursive --check-only --diff --project $(PACKAGE) --project $(TESTS_MODULE)
+	isort $(SRC_DIR) $(TESTS_DIR) --recursive --check-only --diff --project $(PACKAGE) --project $(TESTS_MODULE) --project $(DEMO_DIR)
 
 check-manifest:
 	check-manifest

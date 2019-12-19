@@ -2,16 +2,15 @@
 # -*- coding: utf-8 -*-
 # Copyright (c) The cliform project
 
-
 import codecs
 import os
 import re
-import sys
 
 from setuptools import find_packages, setup
 
 root_dir = os.path.abspath(os.path.dirname(__file__))
 SRC_DIR = 'src'
+
 
 def get_version(src_dir, package_name):
     version_re = re.compile(r"^__version__ = [\"']([\w_.-]+)[\"']$")
