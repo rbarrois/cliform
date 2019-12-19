@@ -44,7 +44,7 @@ setup(
     install_requires=[
         'Django>=2.0',
     ],
-    python_requires='>=3.6',
+    python_requires='>=3.7',
     setup_requires=[
         'setuptools>=0.8',
     ],
@@ -61,7 +61,6 @@ setup(
         "License :: OSI Approved :: BSD License",
         "Operating System :: OS Independent",
         "Programming Language :: Python",
-        "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Topic :: Software Development :: User Interfaces",
         "Topic :: Terminals",
