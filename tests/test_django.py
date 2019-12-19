@@ -12,22 +12,27 @@ import cliform.django
 from . import utils
 
 
-class ExampleForm(forms.Form):
+class SimpleForm(forms.Form):
     name = forms.CharField(label="Name")
     email = forms.EmailField(label="Email")
 
-    def save(self) -> T.Dict:
-        return self.cleaned_data
 
-
-class FormPrompter(cliform.django.FormPrompter):
-    form_class = ExampleForm
 
 
 class SimpleFormTests(utils.InteractionTestCase):
+    def setUp(self):
+        class FormPrompter(cliform.django.FormPrompter):
+            form_class = SimpleForm
+            data = None
+
+            def on_submit(self, data):
+                self.data = data
+
+        self.prompter = FormPrompter()
+
     def test_nominal(self) -> None:
         self.assertSequence(
-            FormPrompter(),
+            self.prompter,
             [
                 utils.ExpectMsg(">>> Name?"),
                 utils.ExpectQuery(reply="John Doe"),
@@ -40,14 +45,18 @@ class SimpleFormTests(utils.InteractionTestCase):
                 utils.ExpectMsg(">>> Confirm? ([Y]es/[N]o)"),
                 utils.ExpectQuery(reply=''),
                 utils.ExpectMsg(""),
-                utils.ExpectMsg("`ExampleForm` has been submitted:"),
-                utils.ExpectMsg("  {'name': 'John Doe', 'email': 'john.doe@example.com'}")
+                utils.ExpectMsg("`SimpleForm` has been submitted:"),
+                utils.ExpectRe(r'  {.*}'),
             ],
         )
+        self.assertEqual({
+            'email': 'john.doe@example.com',
+            'name': "John Doe",
+        }, self.prompter.data)
 
     def test_bad_input(self) -> None:
         self.assertSequence(
-            FormPrompter(),
+            self.prompter,
             [
                 utils.ExpectMsg(">>> Name?"),
                 utils.ExpectQuery(reply="John Doe"),
@@ -63,7 +72,11 @@ class SimpleFormTests(utils.InteractionTestCase):
                 utils.ExpectMsg(">>> Confirm? ([Y]es/[N]o)"),
                 utils.ExpectQuery(reply=''),
                 utils.ExpectMsg(""),
-                utils.ExpectMsg("`ExampleForm` has been submitted:"),
-                utils.ExpectMsg("  {'name': 'John Doe', 'email': 'john.doe@example.com'}")
+                utils.ExpectMsg("`SimpleForm` has been submitted:"),
+                utils.ExpectRe(r'  {.*}'),
             ],
         )
+        self.assertEqual({
+            'email': 'john.doe@example.com',
+            'name': "John Doe",
+        }, self.prompter.data)

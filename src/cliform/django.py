@@ -94,3 +94,5 @@ class FormPrompter(interact.Prompter):
         else:
             yield interact.Error("Aborting")
 
+    def on_submit(self, data: T.Mapping[T.Text, T.Any]) -> None:
+        raise NotImplementedError()
